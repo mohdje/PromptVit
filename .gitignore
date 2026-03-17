@@ -1,0 +1,7 @@
+/PromptVit/bin
+/PromptVit/obj
+/Sample/bin
+/Sample/obj
+/Sample/Tokens.cs
+.vscode
+.editorconfig
