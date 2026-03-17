@@ -28,3 +28,60 @@ It offers a unified, intuitive, and high-performance API to:
 
 ```bash
 dotnet add package PromptVit
+```
+
+## Example
+
+### Simple chat
+
+```c#
+var aiClient = PromptVitFactory.CreateGoogleAIStudioClient("your_token", "gemini-3.1-flash-lite-preview");
+
+aiClient.SetSystemPrompt("You are an AI assistant expert in cooking. You can answer to every questions related to cooking but cannot answer to anything else.");
+
+var userInput = "How to make a Tiramisu ?";
+var response = await aiClient.Invoke(userInput);
+```
+### Chat with stream
+
+```c#
+var aiClient = PromptVitFactory.CreateGoogleAIStudioClient("your_token", "gemini-3.1-flash-lite-preview");
+aiClient.OnStreamChunkReceived += async (s, chunk) =>
+{
+    Console.Write(chunk);
+};
+
+aiClient.SetSystemPrompt("You are an AI assistant expert in cooking. You can answer to every questions related to cooking but cannot answer to anything else.");
+
+var userInput = "How to make a Tiramisu ?";
+var response = await aiClient.Invoke(userInput, true);
+```
+
+### Tool calling
+
+```c#
+var aiClient = PromptVitFactory.CreateGoogleAIStudioClient("your_token", "gemini-3.1-flash-lite-preview");
+
+aiClient.SetSystemPrompt("You are an AI assistant that can give live weather information. You always use available tools to answer to user request.");
+
+aiClient.SetTools([
+    new AITool<string, WeatherArgs>("getWeather", "Retrieves weather for a given location",
+    [
+        new AIToolParameter("location", "a city location (example: Paris, France)", "string")
+    ],
+    async (arg) => await GetWeather(arg.Location))
+]);
+
+var userInput = "What is the weather in Madrid ?";
+var response = await aiClient.Invoke(userInput);
+
+static async Task<string> GetWeather(string location)
+{
+    return "the temperature is 15°C with a clear sky for the whole day";
+}
+
+class WeatherArgs
+{
+    public string Location { get; set; }
+}
+```
