@@ -2,7 +2,7 @@
 
 **Lightweight multi-provider LLM client for .NET**
 
-Promptly is a modern, lightweight C# library that simplifies calls to major generative AI inference providers (OpenAI, Google Gemini, Anthropic Claude, Groq, Mistral, etc.) from your .NET applications.
+Promptly is a modern, lightweight C# library that simplifies calls to major generative AI inference providers (OpenAI, Google Gemini, HuggingFace, Groq, etc.) from your .NET applications.
 It offers a unified, intuitive, and high-performance API to:
 
  - Send simple or complex prompts
