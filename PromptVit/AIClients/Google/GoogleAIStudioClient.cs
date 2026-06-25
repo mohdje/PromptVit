@@ -35,15 +35,16 @@ namespace PromptVit.AIClients.Google
             var responseObject = JsonSerializer.Deserialize<GoogleAIStudioResponse>(responseContent, jsonSerializerOptions);
 
             var message = responseObject?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault()?.Text;
+            var reasoning = responseObject?.Candidates?.FirstOrDefault()?.Content?.Parts?.FirstOrDefault(p => p.Reasoning != null)?.Reasoning;
 
-            var googleAiToolCalls = responseObject?.Candidates?.FirstOrDefault()?.Content?.Parts?.Where(p => p.FunctionCall != null);
-            var aiToolCalls = googleAiToolCalls?.Select(tc =>
+            var googleAiToolCalls = responseObject?.Candidates?.FirstOrDefault()?.Content?.Parts?.Where(p => p.FunctionCall != null) ?? [];
+            var aiToolCalls = googleAiToolCalls.Select(tc =>
                 new AIToolCall(
-                    tc.FunctionCall.Name,
+                    tc.FunctionCall!.Name,
                     JsonSerializer.Serialize(tc.FunctionCall.Args),
                     tc.ThoughtSignature)) ?? [];
 
-            return new AIResponse(message, [.. aiToolCalls]);
+            return new AIResponse(message, [.. aiToolCalls], reasoning);
         }
 
         protected override string BuildRequestBodyAsJson()

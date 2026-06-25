@@ -1,15 +1,16 @@
 namespace PromptVit
 {
-    internal class AIResponse(string message, AIToolCall[] toolCalls)
+    internal class AIResponse(string? message, AIToolCall[] toolCalls, string? reasoning = null)
     {
-        public string Message { get; } = message;
+        public string? Message { get; } = message;
         public AIToolCall[] ToolCalls { get; } = toolCalls;
+        public string? Reasoning { get; } = reasoning;
     }
 
-    internal class AIToolCall(string name, string jsonArgs, string id)
+    internal class AIToolCall(string name, string jsonArgs, string? id = null)
     {
         public string Name { get; } = name;
-        public string Id { get; } = id;
+        public string? Id { get; } = id;
 
         public string Arguments { get; } = jsonArgs;
     }

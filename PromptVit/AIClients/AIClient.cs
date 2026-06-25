@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 
 namespace PromptVit.AIClients
 {
@@ -14,9 +15,13 @@ namespace PromptVit.AIClients
         public string ModelName { get; set; }
 
         /// <summary>
-        /// Event raised each time a new chunk is received after calling Invoke method with stream parameter set to true. 
+        /// Event raised each time a new response chunk is received after calling Invoke method with stream parameter set to true. 
         /// </summary>
-        public event EventHandler<string> OnStreamChunkReceived;
+        public event EventHandler<string> OnResponseStreamChunkReceived;
+        /// <summary>
+        /// Event raised each time a new reasoning chunk is received after calling Invoke method with stream parameter set to true. 
+        /// </summary>
+        public event EventHandler<string> OnReasoningStreamChunkReceived;
         protected bool streamMode;
 
         protected abstract string GetApiEndpointUrl();
@@ -37,7 +42,7 @@ namespace PromptVit.AIClients
         /// Sends a user prompt to the LLM.
         /// </summary>
         /// <param name="userPrompt">The user prompt to send</param>
-        /// <param name="stream">If true the response will be retrieved by chunks using OnStreamChunkReceived event.</param>
+        /// <param name="stream">If true the response will be retrieved by chunks using OnResponseStreamChunkReceived event. If model is reasoning it will be catch by chunks by OnReasoningStreamChunkReceived event</param>
         /// <returns>LLM response as string</returns>
         /// <exception cref="ArgumentNullException">The ModelName needs to be non empty string</exception>
         public async Task<string> Invoke(string userPrompt, bool stream = false)
@@ -82,6 +87,35 @@ namespace PromptVit.AIClients
         public void ClearPrompts()
         {
             this.prompts.Clear();
+        }
+
+        /// <summary>
+        /// Save the chat history in a text file 
+        /// </summary>
+        /// <param name="historyFilePath"></param>
+        /// <returns></returns>
+        public async Task SaveHistoryAsync(string historyFilePath)
+        {
+            var json = JsonSerializer.Serialize(this.prompts);
+            var base64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
+            await File.WriteAllTextAsync(historyFilePath, base64);
+        }
+
+        /// <summary>
+        /// Load the chat history from a text file 
+        /// </summary>
+        /// <param name="historyFilePath"></param>
+        /// <returns></returns>
+        public async Task LoadHistoryAsync(string historyFilePath)
+        {
+            var base64 = await File.ReadAllTextAsync(historyFilePath);
+            var json = Convert.FromBase64String(base64);
+
+            this.prompts.Clear();
+
+            var prompts = JsonSerializer.Deserialize<List<Prompt>>(json);
+            if (prompts?.Any() == true)
+                this.prompts.AddRange(prompts);
         }
 
         /// <summary>
@@ -172,9 +206,12 @@ namespace PromptVit.AIClients
                     if (aiResponse?.ToolCalls?.Length > 0)
                         tools.AddRange(aiResponse.ToolCalls);
 
+                    if (!string.IsNullOrEmpty(aiResponse?.Reasoning))
+                        OnReasoningStreamChunkReceived?.Invoke(this, aiResponse?.Reasoning);
+
                     if (!string.IsNullOrEmpty(aiResponse?.Message))
                     {
-                        OnStreamChunkReceived?.Invoke(this, aiResponse?.Message);
+                        OnResponseStreamChunkReceived?.Invoke(this, aiResponse?.Message);
                         sb.Append(aiResponse?.Message);
                     }
                 }

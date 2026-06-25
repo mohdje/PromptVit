@@ -25,7 +25,16 @@ namespace PromptVit.AIClients.OpenAI
             var reponseObject = JsonSerializer.Deserialize<OpenAIResponse>(responseContent, jsonSerializerOptions);
 
             var choice = reponseObject?.Choices?.FirstOrDefault(c => streamMode || c.Message?.Role == "assistant");
-            var content = streamMode ? (choice?.Delta?.Content ?? choice?.Delta?.Reasoning) : choice?.Message.Content;
+
+            var content = string.Empty;
+            var reasoning = string.Empty;
+            if (streamMode)
+            {
+                content = choice?.Delta?.Content;
+                reasoning = choice?.Delta?.Reasoning;
+            }
+            else
+                content = choice?.Message?.Content;
 
             var toolCalls = streamMode ? choice?.Delta?.ToolCalls : choice?.Message?.ToolCalls;
             var aiToolCalls = toolCalls?.Select(tc =>
@@ -34,7 +43,7 @@ namespace PromptVit.AIClients.OpenAI
                     tc.Function.Arguments,
                     tc.Id)) ?? [];
 
-            return new AIResponse(content, [.. aiToolCalls]);
+            return new AIResponse(content, [.. aiToolCalls], reasoning);
         }
 
         protected override string BuildRequestBodyAsJson()

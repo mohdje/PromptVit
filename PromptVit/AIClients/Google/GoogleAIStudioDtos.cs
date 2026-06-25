@@ -31,6 +31,9 @@ namespace PromptVit.AIClients.Google
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? ThoughtSignature { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Reasoning { get; set; }
     }
 
     public class GoogleAIStudioConfig
