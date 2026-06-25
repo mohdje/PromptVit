@@ -1,6 +1,6 @@
 using PromptVit.AIClients.OpenAI;
 
-namespace PromptVit.AIClients.HuggingFace
+namespace PromptVit.AIClients
 {
     public class HuggingFaceClient(string authorizationToken) : OpenAIClient(authorizationToken)
     {

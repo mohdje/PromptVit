@@ -1,6 +1,6 @@
 using PromptVit.AIClients.OpenAI;
 
-namespace PromptVit.AIClients.Cerebras
+namespace PromptVit.AIClients
 {
     public class CerebrasClient(string authorizationToken) : OpenAIClient(authorizationToken)
     {
