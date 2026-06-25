@@ -1,9 +1,8 @@
 ﻿using PromptVit;
 using PromptVit.AIClients;
 
-var aiClient = PromptVitFactory.CreateHuggingFaceClient(Tokens.HuggingFaceToken, "openai/gpt-oss-20b");
-
-await StartChatWithTools(aiClient);
+var aiClient = PromptVitFactory.CreateGroqClient(Tokens.GroqApiToken, "openai/gpt-oss-120b");
+await StartSimpleChat(aiClient);
 
 static async Task StartSimpleChat(AIClient aiClient)
 {
@@ -23,8 +22,6 @@ static async Task StartSimpleChat(AIClient aiClient)
 
         WriteColored("Assistant", ConsoleColor.Green);
         Console.WriteLine("> " + response);
-
-        await aiClient.Invoke(userInput, true);
     }
 }
 
@@ -32,16 +29,28 @@ static async Task StartSimpleChatWithResponseStream(AIClient aiClient)
 {
     Console.WriteLine("Start chatting with AI");
 
-    aiClient.SetSystemPrompt("You are an AI assistant that gives live information about the weather. Use the available tools to get the live information.");
+    aiClient.SetSystemPrompt("You are an AI assistant expert in cooking. You can answer to every questions related to cooking but cannot answer to anything else.");
 
-    var chunkReceived = false;
-    aiClient.OnStreamChunkReceived += async (s, chunk) =>
+    var reasoningChunkReceived = false;
+    aiClient.OnReasoningStreamChunkReceived += async (s, chunk) =>
+   {
+       if (!reasoningChunkReceived)
+       {
+           WriteColored("Reasoning", ConsoleColor.Magenta);
+           Console.Write("> ");
+           reasoningChunkReceived = true;
+       }
+       Console.Write(chunk);
+   };
+
+    var responseChunkReceived = false;
+    aiClient.OnResponseStreamChunkReceived += async (s, chunk) =>
     {
-        if (!chunkReceived)
+        if (!responseChunkReceived)
         {
             WriteColored("Assistant", ConsoleColor.Green);
             Console.Write("> ");
-            chunkReceived = true;
+            responseChunkReceived = true;
         }
         Console.Write(chunk);
     };
@@ -54,7 +63,8 @@ static async Task StartSimpleChatWithResponseStream(AIClient aiClient)
 
         Console.WriteLine("AI Thinking...");
 
-        chunkReceived = false;
+        responseChunkReceived = false;
+        reasoningChunkReceived = false;
         await aiClient.Invoke(userInput, true);
     }
 }
