@@ -7,11 +7,11 @@ namespace PromptVit
         public string? Reasoning { get; } = reasoning;
     }
 
-    internal class AIToolCall(string name, string jsonArgs, string? id = null)
+    internal class AIToolCall(string name, string jsonArguments, string? id = null)
     {
         public string Name { get; } = name;
         public string? Id { get; } = id;
 
-        public string Arguments { get; } = jsonArgs;
+        public string JsonArguments { get; } = jsonArguments;
     }
 }

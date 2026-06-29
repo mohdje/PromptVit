@@ -142,7 +142,7 @@ namespace PromptVit.AIClients.Google
                             FunctionCall = new GoogleAIFunctionCall
                             {
                                 Name = t.Name,
-                                Args = JsonSerializer.Deserialize<Dictionary<string, object>>(t.Arguments, jsonSerializerOptions)
+                                Args = JsonSerializer.Deserialize<Dictionary<string, object>>(t.JsonArguments, jsonSerializerOptions)
                             },
                             ThoughtSignature = t.Id
                         }));

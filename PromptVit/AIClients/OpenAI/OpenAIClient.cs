@@ -63,7 +63,7 @@ namespace PromptVit.AIClients.OpenAI
                             Id = t.Id,
                             Type = "function",
                             Function = new OpenAIFunctionCall{
-                                Arguments = t.Arguments,
+                                Arguments = t.JsonArguments,
                                 Name = t.Name
                             }
                         }

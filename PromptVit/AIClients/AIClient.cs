@@ -235,7 +235,7 @@ namespace PromptVit.AIClients
             prompts.Add(new Prompt
             {
                 Role = "assistant",
-                ToolCalls = [.. toolCalls.Select(t => new AIToolCall(t.Name, t.Arguments, t.Id))]
+                ToolCalls = [.. toolCalls.Select(t => new AIToolCall(t.Name, t.JsonArguments, t.Id))]
             });
             foreach (var toolToCall in toolCalls)
             {
@@ -243,7 +243,7 @@ namespace PromptVit.AIClients
                 var tool = tools.FirstOrDefault(t => t.Name == toolToCall.Name);
                 if (tool != null)
                 {
-                    string jsonResult = await tool.ExecuteToolAsync(toolToCall.Arguments);
+                    string jsonResult = await tool.ExecuteToolAsync(toolToCall.JsonArguments);
 
                     prompts.Add(new Prompt
                     {
