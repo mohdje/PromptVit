@@ -11,7 +11,7 @@ It offers a unified, intuitive, and high-performance API to:
  - Easily switch between different providers without changing your business logic
 
 [![NuGet](https://img.shields.io/nuget/v/Promptly.svg?logo=nuget&logoColor=white&label=NuGet)](https://www.nuget.org/packages/Promptly)
-[![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0-blueviolet)](https://dotnet.microsoft.com)
+[![.NET](https://img.shields.io/badge/.NET-10.0-blueviolet)](https://dotnet.microsoft.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## ✨ Why PromptVit ?
@@ -21,6 +21,7 @@ It offers a unified, intuitive, and high-performance API to:
 - **Native streaming**: full support for real-time responses
 - **Standardized tool calls**: JSON Schema format compatible with most providers
 - **Easy switching**: switch providers in one line of configuration
+- **History persistence**: save and reload chat history across sessions with a single call
 - **Strongly typed**: well-typed messages, tools, responses, and errors
 - **High-performance**: designed for production use (retry, timeout, logging)
 
@@ -84,4 +85,19 @@ class WeatherArgs
 {
     public string Location { get; set; }
 }
+```
+
+### Save / load chat history
+
+```c#
+var aiClient = PromptVitFactory.CreateGoogleAIStudioClient("your_token", "gemini-3.1-flash-lite-preview");
+
+aiClient.SetSystemPrompt("You are an AI assistant expert in cooking.");
+
+await aiClient.Invoke("How to make a Tiramisu ?");
+await aiClient.SaveHistoryAsync("history.txt");
+
+// Later, reload the conversation context
+await aiClient.LoadHistoryAsync("history.txt");
+await aiClient.Invoke("What was the first dessert I asked about?");
 ```
